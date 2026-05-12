@@ -1,10 +1,12 @@
 const express = require("express");
 
-const { createTask, updateTaskStatus } = require("../controllers/taskController");
+const { createTask, updateTaskStatus, getTasks} = require("../controllers/taskController");
 
 const { protect } = require("../middleware/authMiddleware");
 
 const router = express.Router();
+
+router.get("/", protect, getTasks);
 
 router.post("/", protect, createTask);
 

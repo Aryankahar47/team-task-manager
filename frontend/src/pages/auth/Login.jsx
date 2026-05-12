@@ -48,6 +48,8 @@ const Login = () => {
   try {
     const res = await loginUser(formData);
 
+    localStorage.setItem("token", res.data.token);
+
 console.log("LOGIN RESPONSE:", res.data);
 
     login(res.data); // store auth globally

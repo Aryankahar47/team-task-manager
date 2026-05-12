@@ -4,8 +4,9 @@ import Login from "../pages/auth/Login";
 import Signup from "../pages/auth/Signup";
 import Dashboard from "../pages/dashboard/Dashboard";
 import Projects from "../pages/projects/Projects";
-
+import DashboardLayout from "../layouts/DashboardLayout";
 import ProtectedRoute from "./ProtectedRoute"; 
+import Tasks from "../pages/tasks/Tasks";
 
 const AppRoutes = () => {
   return (
@@ -19,7 +20,10 @@ const AppRoutes = () => {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <DashboardLayout>
+                <Dashboard />
+              </DashboardLayout>
+              
             </ProtectedRoute>
           }
         />
@@ -28,10 +32,22 @@ const AppRoutes = () => {
           path="/projects"
           element={
             <ProtectedRoute>
-              <Projects />
+              <DashboardLayout>
+                <Projects />
+              </DashboardLayout>
+              
             </ProtectedRoute>
           }
         />
+
+        <Route
+  path="/tasks"
+  element={
+    <ProtectedRoute>
+      <Tasks />
+    </ProtectedRoute>
+  }
+/>
 
       </Routes>
     </BrowserRouter>

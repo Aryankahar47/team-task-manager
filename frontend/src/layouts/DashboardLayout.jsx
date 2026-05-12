@@ -4,15 +4,13 @@ import Sidebar from "../components/layout/Sidebar";
 
 const DashboardLayout = ({ children }) => {
   return (
-    <Box>
-      <Navbar />
+    <Box sx={{ display: "flex", background: "#f5f7fb" }}>
+      <Sidebar />
 
-      <Box sx={{ display: "flex" }}>
-        {/* Sidebar */}
-        <Sidebar />
+      <Box sx={{ flex: 1 }}>
+        <Navbar />
 
-        {/* Main Content */}
-        <Box sx={{ flex: 1, padding: 3 }}>
+        <Box sx={{ p: 3, mt: 8 }}>
           {children}
         </Box>
       </Box>

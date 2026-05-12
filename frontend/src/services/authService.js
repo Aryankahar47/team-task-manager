@@ -2,10 +2,10 @@ import api from "./api";
 
 // Signup
 export const signupUser = (data) => {
-  return api.post("/api/auth/signup", data);
+  return api.post("/auth/signup", data);
 };
 
 // Login
 export const loginUser = (data) => {
-  return api.post("/api/auth/login", data);
+  return api.post("/auth/login", data);
 };

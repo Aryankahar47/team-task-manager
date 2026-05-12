@@ -1,11 +1,20 @@
 import axios from "axios";
 
-// base configuration for backend
 const api = axios.create({
-  baseURL: "http://localhost:5000",
-  headers: {
-    "Content-Type": "application/json",
-  },
+  baseURL: "http://localhost:5000/api",
+});
+
+// 🔥 AUTO ATTACH TOKEN
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+
+  console.log("TOKEN IN REQUEST:", token); // DEBUG
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
 });
 
 export default api;

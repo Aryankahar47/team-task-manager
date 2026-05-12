@@ -46,6 +46,7 @@ const createTask = async (req, res) => {
       description,
       dueDate,
       priority,
+      status:"todo",
       project: projectId,
       assignedTo: assignedUser._id,
       createdBy: req.user._id,
@@ -53,9 +54,12 @@ const createTask = async (req, res) => {
 
     res.status(201).json(task);
   } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+    console.log(error);
+
+res.status(500).json({
+  message: error.message,
+  error,
+});
   }
 };
 
@@ -100,7 +104,26 @@ const updateTaskStatus = async (req, res) => {
   }
 };
 
+
+const getTasks = async (req, res) => {
+  try {
+    const tasks = await Task.find({
+      $or: [
+        { assignedTo: req.user._id },
+        { createdBy: req.user._id },
+      ],
+    });
+
+    res.json(tasks);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   createTask,
-  updateTaskStatus
+  updateTaskStatus,
+  getTasks
 };
