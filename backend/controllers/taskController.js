@@ -107,14 +107,28 @@ const updateTaskStatus = async (req, res) => {
 
 const getTasks = async (req, res) => {
   try {
-    const tasks = await Task.find({
+    const { projectId } = req.query;
+
+    // Base query
+    let query = {
       $or: [
         { assignedTo: req.user._id },
         { createdBy: req.user._id },
       ],
-    });
+    };
 
-    res.json(tasks);
+    // If projectId exists, filter by project
+    if (projectId) {
+      query.project = projectId;
+    }
+
+    const tasks = await Task.find(query)
+      .populate("assignedTo", "name email")
+      .populate("createdBy", "name email")
+      .populate("project", "name")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(tasks);
   } catch (error) {
     res.status(500).json({
       message: error.message,

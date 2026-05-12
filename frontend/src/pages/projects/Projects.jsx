@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Grid,
@@ -22,6 +22,7 @@ import {
 } from "../../services/projectService";
 
 const Projects = () => {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
 
   const [open, setOpen] = useState(false);
@@ -159,16 +160,17 @@ const Projects = () => {
                 </Stack>
 
                 <Button
-                  variant="contained"
-                  fullWidth
-                  sx={{
-                    mt: 3,
-                    borderRadius: 2,
-                    textTransform: "none",
-                  }}
-                >
-                  Open Project
-                </Button>
+  variant="contained"
+  fullWidth
+  onClick={() => navigate(`/projects/${project._id}`)}
+  sx={{
+    mt: 3,
+    borderRadius: 2,
+    textTransform: "none",
+  }}
+>
+  Open Project
+</Button>
               </CardContent>
             </Card>
           </Grid>
