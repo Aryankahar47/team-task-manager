@@ -2,6 +2,109 @@ const Task = require("../models/Task");
 const Project = require("../models/Project");
 const User = require("../models/User");
 
+// const createTask = async (req, res) => {
+//   try {
+//     const {
+//       title,
+//       description,
+//       dueDate,
+//       priority,
+//       projectId,
+//       assignedToEmail,
+//     } = req.body;
+
+//     // Find project
+//     const project = await Project.findById(projectId);
+
+//     if (!project) {
+//       return res.status(404).json({
+//         message: "Project not found",
+//       });
+//     }
+
+//     // ADD THIS CHECK (IMPORTANT)
+// const isAdmin =
+//   project.admin.toString() === req.user._id.toString();
+
+// if (!isAdmin) {
+//   return res.status(403).json({
+//     message: "Only admin can assign tasks",
+//   });
+// }
+
+//     // Check if user is project member
+//     const isMember = project.members.some(
+//   (member) =>
+//     member.toString() ===
+//     req.user._id.toString()
+// );
+
+// if (!isMember) {
+//       return res.status(403).json({
+//         message: "Not a project member",
+//       });
+//     }
+
+//     // ONLY ADMIN CAN CREATE TASKS
+// if (project.admin.toString() !== req.user._id.toString()) {
+//   return res.status(403).json({
+//     message: "Only admin can create or assign tasks",
+//   });
+// }
+
+//     // Find assigned user
+//     const assignedUser = await User.findOne({
+//       email: assignedToEmail,
+//     });
+
+//     if (!assignedUser) {
+//       return res.status(404).json({
+//         message: "Assigned user not found",
+//       });
+//     }
+
+//     // CHECK IF ASSIGNED USER IS PART OF PROJECT
+// // const isAssignedMember = project.members.some(
+// //   (memberId) =>
+// //     memberId.toString() === assignedUser._id.toString()
+// // );
+
+// // if (!isAssignedMember) {
+// //   return res.status(403).json({
+// //     message: "Assigned user is not a project member",
+// //   });
+// // }
+
+    
+
+//     // Create task
+//     const task = await Task.create({
+//   title,
+//   description,
+//   dueDate,
+//   priority,
+//   status: "todo",
+//   project: projectId,
+//   assignedTo: assignedUser._id,
+//   createdBy: req.user._id,
+// });
+
+//    const populatedTask = await Task.findById(task._id)
+//   .populate("assignedTo", "name email");
+
+// res.status(201).json(populatedTask);
+//   } catch (error) {
+//     console.log(error);
+
+// res.status(500).json({
+//   message: error.message,
+//   error,
+// });
+//   }
+// };
+
+
+
 const createTask = async (req, res) => {
   try {
     const {
@@ -22,14 +125,17 @@ const createTask = async (req, res) => {
       });
     }
 
-    // Check if user is project member
-    if (!project.members.includes(req.user._id)) {
+    // ✅ CHECK ADMIN ONLY (FINAL FIX)
+    const isAdmin =
+      project.admin.toString() === req.user._id.toString();
+
+    if (!isAdmin) {
       return res.status(403).json({
-        message: "Not a project member",
+        message: "Only admin can create or assign tasks",
       });
     }
 
-    // Find assigned user
+    // Check assigned user
     const assignedUser = await User.findOne({
       email: assignedToEmail,
     });
@@ -46,20 +152,21 @@ const createTask = async (req, res) => {
       description,
       dueDate,
       priority,
-      status:"todo",
+      status: "todo",
       project: projectId,
       assignedTo: assignedUser._id,
       createdBy: req.user._id,
     });
 
-    res.status(201).json(task);
-  } catch (error) {
-    console.log(error);
+    const populatedTask = await Task.findById(task._id)
+      .populate("assignedTo", "name email");
 
-res.status(500).json({
-  message: error.message,
-  error,
-});
+    res.status(201).json(populatedTask);
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
@@ -109,26 +216,70 @@ const getTasks = async (req, res) => {
   try {
     const { projectId } = req.query;
 
-    // Base query
-    let query = {
-      $or: [
-        { assignedTo: req.user._id },
-        { createdBy: req.user._id },
-      ],
-    };
+    // =====================================
+    // CASE 1 → GLOBAL TASKS (Task Page)
+    // =====================================
+    if (!projectId) {
 
-    // If projectId exists, filter by project
-    if (projectId) {
-      query.project = projectId;
+      const tasks = await Task.find({
+        $or: [
+          { assignedTo: req.user._id },
+          { createdBy: req.user._id },
+        ],
+      })
+        .populate("assignedTo", "name email")
+        .populate("project", "name");
+
+      return res.json(tasks);
     }
 
-    const tasks = await Task.find(query)
-      .populate("assignedTo", "name email")
-      .populate("createdBy", "name email")
-      .populate("project", "name")
-      .sort({ createdAt: -1 });
+    // =====================================
+    // CASE 2 → PROJECT TASKS (Project Page)
+    // =====================================
 
-    res.status(200).json(tasks);
+    const project = await Project.findById(projectId);
+
+    if (!project) {
+      return res.status(404).json({
+        message: "Project not found",
+      });
+    }
+
+    const isMember = project.members.some(
+      (m) => m.toString() === req.user._id.toString()
+    );
+
+    if (!isMember) {
+      return res.status(403).json({
+        message: "Not authorized for this project",
+      });
+    }
+
+    let tasks;
+
+    if (project.admin.toString() === req.user._id.toString()) {
+
+      tasks = await Task.find({
+        project: projectId,
+      })
+        .populate("assignedTo", "name email")
+        .populate("project", "name");
+
+    } else {
+
+      tasks = await Task.find({
+        project: projectId,
+        $or: [
+          { assignedTo: req.user._id },
+          { createdBy: req.user._id },
+        ],
+      })
+        .populate("assignedTo", "name email")
+        .populate("project", "name");
+    }
+
+    res.json(tasks);
+
   } catch (error) {
     res.status(500).json({
       message: error.message,

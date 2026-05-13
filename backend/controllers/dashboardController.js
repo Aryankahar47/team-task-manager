@@ -2,42 +2,80 @@ const Task = require("../models/Task");
 
 const getDashboardData = async (req, res) => {
   try {
-    // Total tasks
-    const totalTasks = await Task.countDocuments();
+    const userId = req.user._id;
 
-    // Tasks by status
+    const baseFilter = {
+      $or: [
+        { assignedTo: userId },
+        { createdBy: userId },
+      ],
+    };
+
+    const totalTasks = await Task.countDocuments(baseFilter);
+
     const todoTasks = await Task.countDocuments({
-      status: "To Do",
+      ...baseFilter,
+      status: "todo",
     });
 
     const inProgressTasks = await Task.countDocuments({
-      status: "In Progress",
+      ...baseFilter,
+      status: "in-progress",
     });
 
     const doneTasks = await Task.countDocuments({
-      status: "Done",
+      ...baseFilter,
+      status: "done",
     });
 
-    // Overdue tasks
     const overdueTasks = await Task.countDocuments({
+      ...baseFilter,
       dueDate: { $lt: new Date() },
-      status: { $ne: "Done" },
+      status: { $ne: "done" },
     });
 
-    res.status(200).json({
+    const tasksPerUser = await Task.aggregate([
+      { $match: baseFilter },
+
+      {
+        $group: {
+          _id: "$assignedTo",
+          totalTasks: { $sum: 1 },
+        },
+      },
+
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+
+      { $unwind: "$user" },
+
+      {
+        $project: {
+          totalTasks: 1,
+          userName: "$user.name",
+          userEmail: "$user.email",
+        },
+      },
+    ]);
+
+    res.json({
       totalTasks,
       todoTasks,
       inProgressTasks,
       doneTasks,
       overdueTasks,
+      tasksPerUser,
     });
+
   } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+    res.status(500).json({ message: error.message });
   }
 };
 
-module.exports = {
-  getDashboardData,
-};
+module.exports = { getDashboardData };

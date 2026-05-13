@@ -77,13 +77,19 @@ const addMember = async (req, res) => {
 
 const getProjects = async (req, res) => {
   try {
-    const projects = await Project.find({ admin: req.user._id  });
-    res.json(projects);
+    const projects = await Project.find({
+      members: req.user._id,
+    })
+      .populate("admin", "name email")
+      .populate("members", "name email");
+
+    res.status(200).json(projects);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
-
 
 module.exports = {
   createProject,

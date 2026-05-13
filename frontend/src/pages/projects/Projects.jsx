@@ -21,6 +21,8 @@ import {
   createProject,
 } from "../../services/projectService";
 
+
+
 const Projects = () => {
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
@@ -62,6 +64,14 @@ const Projects = () => {
       console.log("Create project error:", error);
     }
   };
+
+  const handleOpenProject = (projectId) => {
+  console.log("OPENING PROJECT:", projectId);
+
+  localStorage.setItem("projectId", projectId);
+
+  navigate(`/projects/${projectId}`);
+};
 
   return (
     <Box sx={{ p: 4, background: "#f6f7fb", minHeight: "100vh" }}>
@@ -159,15 +169,15 @@ const Projects = () => {
                   />
                 </Stack>
 
-                <Button
+               <Button
   variant="contained"
   fullWidth
-  onClick={() => navigate(`/projects/${project._id}`)}
   sx={{
     mt: 3,
     borderRadius: 2,
     textTransform: "none",
   }}
+  onClick={() => handleOpenProject(project._id)}
 >
   Open Project
 </Button>
