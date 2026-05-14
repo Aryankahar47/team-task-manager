@@ -25,6 +25,8 @@ import {
 import {
   getTasks,
   updateTaskStatus,
+  deleteTask,
+   updateTask,
 } from "../../services/taskService";
 
 
@@ -39,6 +41,15 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
+
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  MenuItem,
+} from "@mui/material";
 
 const columnStyle = {
   background: "#f4f6f8",
@@ -60,7 +71,7 @@ const cardStyle = {
   },
 };
 
-const TaskCard = ({ task, handleStatus }) => {
+const TaskCard = ({ task, handleStatus, handleDelete,  handleEditClick }) => {
 
   const {
   attributes,
@@ -77,6 +88,8 @@ const style = {
   transform: CSS.Transform.toString(transform),
   transition,
 };
+
+
 
   return (
     <Card
@@ -170,26 +183,62 @@ const style = {
                   .toLocaleDateString()
               : "No due date"}
           </Typography>
+
+          
         </Stack>
 
         {task.status === "todo" && (
+
+          <Stack direction="row" spacing={1} mt={2}>
           <Button
             variant="contained"
             size="small"
             sx={{ mt: 2 }}
+            onPointerDown={(e) => e.stopPropagation()}
             onClick={() =>
               handleStatus(task._id, "in-progress")
             }
           >
             Start
           </Button>
+
+          <Button
+      color="error"
+      size="small"
+      onPointerDown={(e) => e.stopPropagation()}
+      onClick={() =>
+        handleDelete(task._id)
+      }
+    >
+      Delete
+    </Button>
+
+    <Button
+  variant="outlined"
+  size="small"
+  onPointerDown={(e) => e.stopPropagation()}
+  onClick={() => handleEditClick(task)}
+>
+  Edit
+</Button>
+
+
+          </Stack>
+
+
+
+
+
+
         )}
 
         {task.status === "in-progress" && (
           <Stack direction="row" spacing={1} mt={2}>
+            
             <Button
               variant="outlined"
               size="small"
+              onPointerDown={(e) => e.stopPropagation()}
               onClick={() =>
                 handleStatus(task._id, "todo")
               }
@@ -200,26 +249,71 @@ const style = {
             <Button
               variant="contained"
               size="small"
+              onPointerDown={(e) => e.stopPropagation()}
               onClick={() =>
                 handleStatus(task._id, "done")
               }
             >
               Done
             </Button>
+
+             <Button
+  color="error"
+  size="small"
+  onClick={() =>
+    handleDelete(task._id)
+  }
+>
+  Delete
+</Button>
+
+<Button
+  variant="outlined"
+  size="small"
+  onPointerDown={(e) => e.stopPropagation()}
+  onClick={() => handleEditClick(task)}
+>
+  Edit
+</Button>
           </Stack>
         )}
 
         {task.status === "done" && (
+
+           <Stack direction="row" spacing={1} mt={2}>
           <Button
             variant="outlined"
             size="small"
             sx={{ mt: 2 }}
+            onPointerDown={(e) => e.stopPropagation()}
             onClick={() =>
               handleStatus(task._id, "in-progress")
             }
           >
             Reopen
           </Button>
+
+           <Button
+      color="error"
+      size="small"
+      onPointerDown={(e) => e.stopPropagation()}
+      onClick={() =>
+        handleDelete(task._id)
+      }
+    >
+      Delete
+    </Button>
+
+    <Button
+  variant="outlined"
+  size="small"
+  onPointerDown={(e) => e.stopPropagation()}
+  onClick={() => handleEditClick(task)}
+>
+  Edit
+</Button>
+
+          </Stack>
         )}
 
       </CardContent>
@@ -319,6 +413,19 @@ const Tasks = () => {
 
   const [activeTask, setActiveTask] = useState(null);
 
+  const [openEdit, setOpenEdit] =
+  useState(false);
+
+  const [selectedTask, setSelectedTask] =
+  useState(null);
+
+  const [editData, setEditData] =
+  useState({
+    title: "",
+    description: "",
+    priority: "medium",
+  });
+
   const fetchTasks = async () => {
     try {
       const data = await getTasks();
@@ -352,6 +459,25 @@ const Tasks = () => {
     }
   };
 
+  const handleDelete = async (taskId) => {
+
+  try {
+
+    await deleteTask(taskId);
+
+    setTasks((prev) =>
+      prev.filter(
+        (task) => task._id !== taskId
+      )
+    );
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+ };
+
 
   const handleDragStart = (event) => {
 
@@ -360,7 +486,7 @@ const Tasks = () => {
   );
 
   setActiveTask(task);
-};
+ };
 
 
   const handleDragEnd = async (event) => {
@@ -401,7 +527,7 @@ const Tasks = () => {
   await handleStatus(taskId, newStatus);
 
   setActiveTask(null);
-};
+ };
 
 
   const todo = tasks.filter(
@@ -434,6 +560,40 @@ const Tasks = () => {
     },
   ];
 
+  const handleEditClick = (task) => {
+
+  setSelectedTask(task);
+
+  setEditData({
+    title: task.title || "",
+    description:
+      task.description || "",
+    priority:
+      task.priority || "medium",
+  });
+
+  setOpenEdit(true);
+ };
+
+ const handleEditSave = async () => {
+  try {
+    await updateTask(selectedTask._id, editData);
+
+    await fetchTasks(); // safest approach
+
+    setOpenEdit(false);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+  
+
+  
+
+
+ 
+
   return (
     <Box sx={{ p: 3 }}>
 
@@ -463,8 +623,8 @@ const Tasks = () => {
           {columns.map((column) => (
 
             <DroppableColumn
-  column={column}
->
+           column={column}
+           >
 
              
 
@@ -485,6 +645,8 @@ const Tasks = () => {
                     <TaskCard
                       task={task}
                       handleStatus={handleStatus}
+                       handleDelete={handleDelete}
+                       handleEditClick={handleEditClick}
                     />
                   </Box>
                 ))}
@@ -514,7 +676,80 @@ const Tasks = () => {
 
       </DndContext>
 
+      <Dialog
+  open={openEdit}
+  onClose={() => setOpenEdit(false)}
+  fullWidth
+>
+  <DialogTitle>Edit Task</DialogTitle>
+
+  <DialogContent>
+    <TextField
+      fullWidth
+      label="Title"
+      margin="dense"
+      value={editData.title}
+      onChange={(e) =>
+        setEditData({
+          ...editData,
+          title: e.target.value,
+        })
+      }
+    />
+
+    <TextField
+      fullWidth
+      label="Description"
+      margin="dense"
+      multiline
+      rows={3}
+      value={editData.description}
+      onChange={(e) =>
+        setEditData({
+          ...editData,
+          description: e.target.value,
+        })
+      }
+    />
+
+    <TextField
+      select
+      fullWidth
+      label="Priority"
+      margin="dense"
+      value={editData.priority}
+      onChange={(e) =>
+        setEditData({
+          ...editData,
+          priority: e.target.value,
+        })
+      }
+    >
+      <MenuItem value="low">Low</MenuItem>
+      <MenuItem value="medium">Medium</MenuItem>
+      <MenuItem value="high">High</MenuItem>
+    </TextField>
+  </DialogContent>
+
+  <DialogActions>
+    <Button onClick={() => setOpenEdit(false)}>
+      Cancel
+    </Button>
+
+    <Button
+      variant="contained"
+      onClick={handleEditSave}
+    >
+      Save
+    </Button>
+  </DialogActions>
+</Dialog>
+
+      
+
     </Box>
+
+    
   );
 };
 
