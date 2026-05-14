@@ -1,3 +1,4 @@
+// console.log("TASKS COMPONENT LOADED");
 import { useEffect, useState } from "react";
 
 import {
@@ -618,6 +619,8 @@ const Tasks = () => {
             md: "1fr 1fr 1fr",
           }}
           gap={2}
+          
+          
         >
 
           {columns.map((column) => (
@@ -640,6 +643,7 @@ const Tasks = () => {
                 {column.tasks.map((task) => (
                   <Box
                     key={task._id}
+                    sx={{ mt: 3, mb: 3 }}
                     
                   >
                     <TaskCard
@@ -661,7 +665,7 @@ const Tasks = () => {
         <DragOverlay>
 
   {activeTask ? (
-    <Box sx={{ width: 320 }}>
+    <Box sx={{ width: 320 }} >
 
       
 
@@ -681,6 +685,14 @@ const Tasks = () => {
   onClose={() => setOpenEdit(false)}
   fullWidth
 >
+
+  {/* <TaskForm
+  initialData={selectedTask}
+  onSubmit={handleEditSave}
+  onCancel={() => setOpenEdit(false)}
+/> */}
+
+
   <DialogTitle>Edit Task</DialogTitle>
 
   <DialogContent>

@@ -23,6 +23,8 @@ import {
 
 
 
+
+
 const Projects = () => {
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
@@ -73,6 +75,24 @@ const Projects = () => {
   navigate(`/projects/${projectId}`);
 };
 
+const ProjectPage = ({ projectId }) => {
+
+  const handleCreateTask = async (data) => {
+    await createTask({
+      ...data,
+      projectId, // IMPORTANT
+    });
+
+    console.log("Task created");
+  };
+
+  return (
+    <TaskForm
+      onSubmit={handleCreateTask}
+    />
+  );
+};
+
   return (
     <Box sx={{ p: 4, background: "#f6f7fb", minHeight: "100vh" }}>
       
@@ -83,12 +103,12 @@ const Projects = () => {
         alignItems="center"
         mb={4}
       >
-        <Box>
+        <Box >
           <Typography variant="h4" fontWeight={700}>
             Projects
           </Typography>
 
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 3, mb: 3 }} >
             Manage all your projects in one place
           </Typography>
         </Box>
@@ -96,11 +116,12 @@ const Projects = () => {
         <Button
           variant="contained"
           onClick={() => setOpen(true)}
+          
           sx={{
             borderRadius: 3,
             textTransform: "none",
             px: 3,
-          }}
+           }}
         >
           + Create Project
         </Button>

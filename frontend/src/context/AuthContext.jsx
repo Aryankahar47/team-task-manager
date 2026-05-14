@@ -29,6 +29,8 @@ const [user, setUser] = useState(() => {
 
   localStorage.setItem("token", data.token);
   localStorage.setItem("user", JSON.stringify(data.user));
+  localStorage.setItem("userId", data.user._id);
+  localStorage.setItem("userName", data.user.name);
 };
 
   // logout function

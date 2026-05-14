@@ -113,7 +113,8 @@ const createTask = async (req, res) => {
       dueDate,
       priority,
       projectId,
-      assignedToEmail,
+      // assignedToEmail,
+      assignedTo
     } = req.body;
 
     // Find project
@@ -136,15 +137,13 @@ const createTask = async (req, res) => {
     }
 
     // Check assigned user
-    const assignedUser = await User.findOne({
-      email: assignedToEmail,
-    });
+   const assignedUser = await User.findById(assignedTo);
 
-    if (!assignedUser) {
-      return res.status(404).json({
-        message: "Assigned user not found",
-      });
-    }
+if (!assignedUser) {
+  return res.status(404).json({
+    message: "Assigned user not found",
+  });
+}
 
     // Create task
     const task = await Task.create({
@@ -208,6 +207,99 @@ const updateTaskStatus = async (req, res) => {
     res.status(500).json({
       message: error.message,
     });
+  }
+};
+
+const deleteTask = async (req, res) => {
+  try {
+
+    const task = await Task.findById(req.params.id);
+
+    if (!task) {
+      return res.status(404).json({
+        message: "Task not found",
+      });
+    }
+
+    // ONLY CREATOR CAN DELETE
+    if (
+      task.createdBy.toString() !==
+      req.user._id.toString()
+    ) {
+      return res.status(403).json({
+        message: "Not authorized to delete",
+      });
+    }
+
+    await task.deleteOne();
+
+    res.status(200).json({
+      message: "Task deleted successfully",
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      message: error.message,
+    });
+
+  }
+};
+
+
+const updateTask = async (req, res) => {
+
+  try {
+
+    const {
+      title,
+      description,
+      priority,
+      dueDate,
+    } = req.body;
+
+    const task = await Task.findById(
+      req.params.id
+    );
+
+    if (!task) {
+      return res.status(404).json({
+        message: "Task not found",
+      });
+    }
+
+    if (
+      task.createdBy.toString() !==
+      req.user._id.toString()
+    ) {
+      return res.status(403).json({
+        message: "Not authorized",
+      });
+    }
+
+    task.title =
+      title || task.title;
+
+    task.description =
+      description || task.description;
+
+    task.priority =
+      priority || task.priority;
+
+    task.dueDate =
+      dueDate || task.dueDate;
+
+    const updatedTask =
+      await task.save();
+
+    res.status(200).json(updatedTask);
+
+  } catch (error) {
+
+    res.status(500).json({
+      message: error.message,
+    });
+
   }
 };
 
@@ -290,5 +382,7 @@ const getTasks = async (req, res) => {
 module.exports = {
   createTask,
   updateTaskStatus,
-  getTasks
+  getTasks,
+  deleteTask,
+   updateTask,
 };

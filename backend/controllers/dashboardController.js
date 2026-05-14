@@ -64,6 +64,14 @@ const getDashboardData = async (req, res) => {
       },
     ]);
 
+   const recentTasks = await Task.find(baseFilter)
+  .sort({ createdAt: -1 })
+  .limit(5)
+  .select(
+    "title description status createdAt"
+  );
+
+
     res.json({
       totalTasks,
       todoTasks,
@@ -71,6 +79,7 @@ const getDashboardData = async (req, res) => {
       doneTasks,
       overdueTasks,
       tasksPerUser,
+      recentTasks,
     });
 
   } catch (error) {

@@ -24,10 +24,12 @@ import {
   updateTaskStatus,
 } from "../../services/taskService";
 
-import { getProjectById,  addMemberToProject, } from "../../services/projectService";
+import { getProjectById,  addMemberToProject,  removeMemberFromProject, } from "../../services/projectService";
 
 import { Snackbar, Alert } from "@mui/material";
 
+
+import TaskForm from "../../components/forms/TaskForm";
 
 const columnStyle = {
   flex: 1,
@@ -61,6 +63,17 @@ const ProjectDetails = () => {
 
   const [project, setProject] = useState(null);
 
+  const adminId =
+  typeof project?.admin === "object"
+    ? project.admin._id
+    : project?.admin;
+
+const isAdmin =
+  String(project?.admin?._id) ===
+  String(localStorage.getItem("userId"));
+
+  
+
 const [assignedToEmail, setAssignedToEmail] = useState("");
 
 const [memberDialog, setMemberDialog] = useState(false);
@@ -79,14 +92,17 @@ const [memberEmail, setMemberEmail] = useState("");
 
   // FETCH PROJECT DETAILS
 const fetchProject = async () => {
+  
   try {
     const data = await getProjectById(projectId);
+
+    
 
     setProject(data);
 
     // Default assignee
     if (data?.members?.length > 0) {
-      setAssignedToEmail(data.members[0].email);
+      setAssignedToEmail(data.members[0]._id);
     }
   } catch (error) {
     console.log("Project fetch error:", error);
@@ -163,6 +179,24 @@ const handleAddMember = async () => {
 
   const done = tasks.filter((t) => t.status === "done");
 
+ 
+  const handleRemoveMember = async (
+  memberId
+) => {
+  try {
+
+    await removeMemberFromProject(
+      projectId,
+      memberId
+    );
+
+    fetchProject();
+
+  } catch (error) {
+    console.log(error);
+  }
+};
+
   
 
   return (
@@ -173,7 +207,7 @@ const handleAddMember = async () => {
   alignItems="center"
   mb={3}
 >
-  <Box>
+  <Box >
     <Typography
       variant="h4"
       fontWeight="bold"
@@ -186,12 +220,15 @@ const handleAddMember = async () => {
     </Typography>
   </Box>
 
+  {isAdmin && (
   <Button
     variant="contained"
     onClick={() => setMemberDialog(true)}
+    sx={{ mt: 2, mb: 2 }}
   >
     Add Member
   </Button>
+ )} 
 </Box>
 
 
@@ -202,64 +239,48 @@ const handleAddMember = async () => {
   flexWrap="wrap"
 >
   {project?.members?.map((member) => (
-    <Chip
-      key={member._id}
-      label={member.name}
-      color="primary"
-      variant="outlined"
-    />
+  <Chip
+  key={member._id}
+  label={member.name}
+  color="primary"
+  variant="outlined"
+  onDelete={
+    isAdmin
+      ? () => handleRemoveMember(member._id)
+      : undefined
+  }
+/>
   ))}
 </Stack>
 
       {/* CREATE TASK */}
-      <Box display="flex" gap={2} mb={3}>
-        <TextField
-          fullWidth
-          label="Task Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
+     <TaskForm
+  initialData={null}
+  members={project?.members || []}
+  onSubmit={async (data) => {
+    try {
+      await createTask({
+        ...data,
+        projectId,
+      });
 
-        <TextField
-          fullWidth
-          label="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-
-        <TextField
-  select
-  fullWidth
-  label="Assign To"
-  value={assignedToEmail}
-  onChange={(e) =>
-    setAssignedToEmail(e.target.value)
-  }
->
-  {project?.members?.map((member) => (
-    <MenuItem
-      key={member._id}
-      value={member.email}
-    >
-      {member.name} ({member.email})
-    </MenuItem>
-  ))}
-</TextField>
-
-        <Button
-          variant="contained"
-          onClick={handleCreate}
-        >
-          Add
-        </Button>
-      </Box>
+      fetchTasks();
+    } catch (error) {
+      setErrorMsg(
+        error?.response?.data?.message ||
+        "Error creating task"
+      );
+    }
+  }}
+/>
 
       {/* BOARD */}
+      
       <Box display="flex" gap={2}>
         
         {/* TODO */}
-        <Box sx={columnStyle}>
-          <Typography fontWeight="bold">
+        <Box sx={columnStyle} >
+          <Typography fontWeight="bold" sx={{ mt: 3, mb: 3 }} >
             🟡 Todo ({todo.length})
           </Typography>
 
@@ -302,7 +323,7 @@ const handleAddMember = async () => {
 
         {/* IN PROGRESS */}
         <Box sx={columnStyle}>
-          <Typography fontWeight="bold">
+          <Typography fontWeight="bold" sx={{ mt: 3, mb: 3 }}>
             🔵 In Progress ({progress.length})
           </Typography>
 
@@ -352,7 +373,7 @@ const handleAddMember = async () => {
 
         {/* DONE */}
         <Box sx={columnStyle}>
-          <Typography fontWeight="bold">
+          <Typography fontWeight="bold" sx={{ mt: 3, mb: 3 }}>
             🟢 Done ({done.length})
           </Typography>
 
@@ -403,6 +424,7 @@ const handleAddMember = async () => {
         </Box>
 
       </Box>
+      
 
       <Dialog
   open={memberDialog}

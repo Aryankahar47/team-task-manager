@@ -39,3 +39,17 @@ export const addMemberToProject = async (
 
   return res.data;
 };
+
+export const removeMemberFromProject =
+  async (projectId, memberId) => {
+
+    const res = await api.put(
+      "/projects/remove-member",
+      {
+        projectId,
+        memberId,
+      }
+    );
+
+    return res.data;
+};
