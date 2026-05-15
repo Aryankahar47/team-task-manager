@@ -6,6 +6,10 @@
     <strong>A powerful, full-stack Kanban and project management solution built for modern teams.</strong>
   </p>
 
+  <h3>
+    🚀 <a href="https://team-task-manager-production-0152.up.railway.app" target="_blank"><strong>View Live Demo</strong></a> 🚀
+  </h3>
+
   <p>
     <a href="#features"><img src="https://img.shields.io/badge/Features-Explore-blue?style=for-the-badge&logo=appveyor" alt="Features"></a>
     <a href="#tech-stack"><img src="https://img.shields.io/badge/Tech_Stack-View-orange?style=for-the-badge&logo=react" alt="Tech Stack"></a>
@@ -120,15 +124,15 @@ To deploy your backend to Railway:
 3. Add your environment variables (`MONGODB_URI`, `JWT_SECRET`, `PORT`).
 4. Railway will automatically detect your Node.js environment and start the app using `npm start`.
 
-### Frontend (Vercel / Netlify / Railway)
-To deploy the React Vite frontend:
-1. Push your code to GitHub.
-2. Go to your preferred hosting platform (like Vercel or Netlify).
-3. Import the frontend repository.
-4. Set the Root Directory to `frontend`.
-5. Set the Build Command to `npm run build` and Output Directory to `dist`.
-6. Add your Environment Variables (e.g., `VITE_API_URL` pointing to your Railway backend).
-7. Deploy!
+### Frontend (Railway)
+Your frontend is also deployed on Railway!
+
+To deploy the React Vite frontend to Railway:
+1. Create a new service on your Railway project.
+2. Connect the same GitHub repository, but set the **Root Directory** to `/frontend`.
+3. Railway will automatically detect the build settings (`npm run build`).
+4. Add your Environment Variables (e.g., `VITE_API_URL` pointing to your backend Railway URL).
+5. Generate a public domain, and your frontend is live!
 
 ---
 
