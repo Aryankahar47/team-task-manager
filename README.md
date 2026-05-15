@@ -113,7 +113,6 @@ Ensure you have the following installed:
 ## 🌍 Deployment
 
 ### Backend (Railway)
-I noticed from your configuration that your backend API is deployed on **Railway** (`up.railway.app`)!
 
 To deploy your backend to Railway:
 1. Create a new project on [Railway](https://railway.app/).
