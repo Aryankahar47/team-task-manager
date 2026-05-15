@@ -20,7 +20,7 @@ const createProject = async (req, res) => {
 };
 
 
-const User = require("../models/User");
+const User = require("../models/user");
 
 const addMember = async (req, res) => {
   try {
