@@ -2,109 +2,6 @@ const Task = require("../models/Task");
 const Project = require("../models/Project");
 const User = require("../models/User");
 
-// const createTask = async (req, res) => {
-//   try {
-//     const {
-//       title,
-//       description,
-//       dueDate,
-//       priority,
-//       projectId,
-//       assignedToEmail,
-//     } = req.body;
-
-//     // Find project
-//     const project = await Project.findById(projectId);
-
-//     if (!project) {
-//       return res.status(404).json({
-//         message: "Project not found",
-//       });
-//     }
-
-//     // ADD THIS CHECK (IMPORTANT)
-// const isAdmin =
-//   project.admin.toString() === req.user._id.toString();
-
-// if (!isAdmin) {
-//   return res.status(403).json({
-//     message: "Only admin can assign tasks",
-//   });
-// }
-
-//     // Check if user is project member
-//     const isMember = project.members.some(
-//   (member) =>
-//     member.toString() ===
-//     req.user._id.toString()
-// );
-
-// if (!isMember) {
-//       return res.status(403).json({
-//         message: "Not a project member",
-//       });
-//     }
-
-//     // ONLY ADMIN CAN CREATE TASKS
-// if (project.admin.toString() !== req.user._id.toString()) {
-//   return res.status(403).json({
-//     message: "Only admin can create or assign tasks",
-//   });
-// }
-
-//     // Find assigned user
-//     const assignedUser = await User.findOne({
-//       email: assignedToEmail,
-//     });
-
-//     if (!assignedUser) {
-//       return res.status(404).json({
-//         message: "Assigned user not found",
-//       });
-//     }
-
-//     // CHECK IF ASSIGNED USER IS PART OF PROJECT
-// // const isAssignedMember = project.members.some(
-// //   (memberId) =>
-// //     memberId.toString() === assignedUser._id.toString()
-// // );
-
-// // if (!isAssignedMember) {
-// //   return res.status(403).json({
-// //     message: "Assigned user is not a project member",
-// //   });
-// // }
-
-    
-
-//     // Create task
-//     const task = await Task.create({
-//   title,
-//   description,
-//   dueDate,
-//   priority,
-//   status: "todo",
-//   project: projectId,
-//   assignedTo: assignedUser._id,
-//   createdBy: req.user._id,
-// });
-
-//    const populatedTask = await Task.findById(task._id)
-//   .populate("assignedTo", "name email");
-
-// res.status(201).json(populatedTask);
-//   } catch (error) {
-//     console.log(error);
-
-// res.status(500).json({
-//   message: error.message,
-//   error,
-// });
-//   }
-// };
-
-
-
 const createTask = async (req, res) => {
   try {
     const {
@@ -126,7 +23,7 @@ const createTask = async (req, res) => {
       });
     }
 
-    // ✅ CHECK ADMIN ONLY (FINAL FIX)
+    //  CHECK ADMIN ONLY 
     const isAdmin =
       project.admin.toString() === req.user._id.toString();
 
@@ -308,9 +205,7 @@ const getTasks = async (req, res) => {
   try {
     const { projectId } = req.query;
 
-    // =====================================
-    // CASE 1 → GLOBAL TASKS (Task Page)
-    // =====================================
+  
     if (!projectId) {
 
       const tasks = await Task.find({
@@ -325,9 +220,7 @@ const getTasks = async (req, res) => {
       return res.json(tasks);
     }
 
-    // =====================================
-    // CASE 2 → PROJECT TASKS (Project Page)
-    // =====================================
+   
 
     const project = await Project.findById(projectId);
 

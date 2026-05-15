@@ -114,17 +114,19 @@ const ProjectPage = ({ projectId }) => {
         </Box>
 
         <Button
-          variant="contained"
-          onClick={() => setOpen(true)}
-          
-          sx={{
-            borderRadius: 3,
-            textTransform: "none",
-            px: 3,
-           }}
-        >
-          + Create Project
-        </Button>
+  variant="contained"
+  onClick={() => setOpen(true)}
+  sx={{
+    borderRadius: 3,
+    textTransform: "none",
+    px: 3,
+    height: "32px",
+    fontSize: "0.8rem",
+    lineHeight: 1,
+  }}
+>
+  + Create Project
+</Button>
       </Stack>
 
       {/* EMPTY STATE */}

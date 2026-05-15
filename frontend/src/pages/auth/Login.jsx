@@ -54,7 +54,7 @@ console.log("LOGIN RESPONSE:", res.data);
 
     login(res.data); // store auth globally
 
-    navigate("/dashboard"); // 🔥 redirect after login
+    navigate("/dashboard"); // redirect after login
 
     console.log("Login Successful");
   } catch (error) {

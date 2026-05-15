@@ -96,8 +96,7 @@ const style = {
     <Card
       ref={setNodeRef}
       style={style}
-      // {...listeners}
-      // {...attributes}
+      
       sx={{
   ...cardStyle,
   opacity: isDragging
