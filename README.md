@@ -37,15 +37,23 @@
 
 ## 📸 Screenshots
 
-*(Replace these placeholders with your actual screenshots by uploading images to a `screenshots` folder in this repository!)*
-
 <div align="center">
-  <img src="https://via.placeholder.com/800x400?text=Dashboard+Screenshot" alt="Dashboard Preview" width="800"/>
+  <img src="./screenshots/login.png" alt="Login Page" width="800"/>
+  <p><i>Secure User Authentication</i></p>
+
+  <br/>
+
+  <img src="./screenshots/dashboard.png" alt="Dashboard Preview" width="800"/>
   <p><i>The Analytics Dashboard</i></p>
   
   <br/>
+
+  <img src="./screenshots/dashboard2.png" alt="Dashboard Detail View" width="800"/>
+  <p><i>Dashboard Detail View</i></p>
   
-  <img src="https://via.placeholder.com/800x400?text=Kanban+Board+Screenshot" alt="Kanban Board Preview" width="800"/>
+  <br/>
+  
+  <img src="./screenshots/task.png" alt="Kanban Board Preview" width="800"/>
   <p><i>Interactive Drag-and-Drop Kanban Board</i></p>
 </div>
 
