@@ -155,8 +155,3 @@ team-task-manager/
     └── vite.config.js     # Vite Config
 ```
 
----
-
-<div align="center">
-  Made with ❤️ by developers, for developers.
-</div>
